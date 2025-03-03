@@ -5,6 +5,7 @@ import json
 import plotly
 import plotly.graph_objs as go
 import os
+from scipy import stats
 
 
 # Инициализация Flask приложения
