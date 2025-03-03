@@ -13,7 +13,6 @@ app.secret_key = os.urandom(24)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-from app.models.distribution import Distribution
 
 # Получаем путь к директории, где находится скрипт
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +22,17 @@ SAVE_FILE = os.path.join(BASE_DIR, 'saved_distributions.json')
 # Опционально: инициализация webview для настольного приложения
 # import webview
 # window = None
+
+class Distribution:
+    def __init__(self, dist_type, params):
+        self.type = dist_type
+        self.params = params
+
+    def get_distribution(self):
+        if self.type == 'normal':
+            return stats.norm(loc=self.params['mean'], scale=self.params['std'])
+        elif self.type == 'exponential':
+            return stats.expon(scale=1/self.params['lambda'])
 
 def save_to_file(distributions):
     """Сохраняет параметры распределений в файл"""
