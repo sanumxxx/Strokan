@@ -5,13 +5,15 @@ import json
 import plotly
 import plotly.graph_objs as go
 import os
-from app.models.distribution import Distribution
+
 
 # Инициализация Flask приложения
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+from app.models.distribution import Distribution
 
 # Получаем путь к директории, где находится скрипт
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

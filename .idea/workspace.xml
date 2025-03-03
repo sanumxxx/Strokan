@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5d884ac6-52d7-4d69-9f0b-c329ab19f9c1" name="Changes" comment="v1.3">
+    <list default="true" id="5d884ac6-52d7-4d69-9f0b-c329ab19f9c1" name="Changes" comment="v1.4">
       <change beforePath="$PROJECT_DIR$/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -92,7 +92,7 @@
       <workItem from="1737448334594" duration="1465000" />
       <workItem from="1740575246618" duration="702000" />
       <workItem from="1740591266139" duration="483000" />
-      <workItem from="1740985329051" duration="681000" />
+      <workItem from="1740985329051" duration="735000" />
     </task>
     <task id="LOCAL-00001" summary="v1.0">
       <option name="closed" value="true" />
@@ -126,7 +126,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740985964965</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="v1.4">
+      <option name="closed" value="true" />
+      <created>1740986023313</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1740986023313</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -137,7 +145,19 @@
     <MESSAGE value="v1.1" />
     <MESSAGE value="v1.2" />
     <MESSAGE value="v1.3" />
-    <option name="LAST_COMMIT_MESSAGE" value="v1.3" />
+    <MESSAGE value="v1.4" />
+    <option name="LAST_COMMIT_MESSAGE" value="v1.4" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/__init__.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/_21_01$routes.coverage" NAME="routes Coverage Results" MODIFIED="1740985726024" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app" />
