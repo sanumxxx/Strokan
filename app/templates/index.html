@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Калькулятор распределений</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .distribution-params {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: white;
+        }
+        .param-group {
+            margin-bottom: 10px;
+        }
+        .param-label {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            color: #495057;
+        }
+        .form-control, .form-select {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            height: auto;
+        }
+        .tab-content {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .result-container {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #212529;
+        }
+        .alert {
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .nav-tabs .nav-link {
+            font-size: 0.95rem;
+        }
+        .btn-sm {
+            font-size: 0.85rem;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .preset-container {
+            margin-top: 15px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+        }
+        .distribution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .distribution-header h4 {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Тост для уведомлений -->
+        <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="notification-toast">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-message">
+                    Параметры сохранены
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="parameters-tab" data-bs-toggle="tab" href="#parameters" role="tab">Параметры</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="calculations-tab" data-bs-toggle="tab" href="#calculations" role="tab">Расчеты</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="parameters" role="tabpanel">
+                <form id="parameters-form">
+                    <div class="row">
+                        <!-- Замените этот фрагмент в вашем шаблоне -->
+{% for i in range(4) %}
+<div class="col-md-6 mb-3">
+    <div class="distribution-params">
+        <div class="distribution-header">
+            <h4>Распределение {{ i }}</h4>
+        </div>
+        <div class="param-group">
+            <label class="param-label">Тип распределения:</label>
+            <select class="form-select" name="type-{{ i }}">
+                <option value="normal">Нормальное</option>
+                <option value="exponential">Экспоненциальное</option>
+                <option value="uniform">Равномерное</option>
+            </select>
+        </div>
+        <div class="normal-params-{{ i }}">
+            <div class="param-group">
+                <label class="param-label">Среднее:</label>
+                <input type="number" class="form-control" name="mean-{{ i }}" step="0.1"
+                    value="{{ saved_distributions[i|string]['params']['mean'] if i|string in saved_distributions and 'mean' in saved_distributions[i|string]['params'] else 0 }}">
+            </div>
+            <div class="param-group">
+                <label class="param-label">Стандартное отклонение:</label>
+                <input type="number" class="form-control" name="std-{{ i }}" step="0.1" min="0.1"
+                    value="{{ saved_distributions[i|string]['params']['std'] if i|string in saved_distributions and 'std' in saved_distributions[i|string]['params'] else 1 }}">
+            </div>
+        </div>
+        <div class="exponential-params-{{ i }}" style="display: none;">
+            <div class="param-group">
+                <label class="param-label">Лямбда:</label>
+                <input type="number" class="form-control" name="lambda-{{ i }}" step="0.1" min="0.1"
+                    value="{{ saved_distributions[i|string]['params']['lambda'] if i|string in saved_distributions and 'lambda' in saved_distributions[i|string]['params'] else 1 }}">
+            </div>
+        </div>
+        <div class="uniform-params-{{ i }}" style="display: none;">
+            <div class="param-group">
+                <label class="param-label">Минимум:</label>
+                <input type="number" class="form-control" name="min-{{ i }}" step="0.1"
+                    value="{{ saved_distributions[i|string]['params']['min'] if i|string in saved_distributions and 'min' in saved_distributions[i|string]['params'] else -1 }}">
+            </div>
+            <div class="param-group">
+                <label class="param-label">Максимум:</label>
+                <input type="number" class="form-control" name="max-{{ i }}" step="0.1"
+                    value="{{ saved_distributions[i|string]['params']['max'] if i|string in saved_distributions and 'max' in saved_distributions[i|string]['params'] else 1 }}">
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm">Сохранить параметры</button>
+
+                    <!-- Управление пресетами -->
+                    <div class="preset-container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="param-group">
+                                    <label class="param-label">Имя пресета:</label>
+                                    <input type="text" class="form-control" id="preset-name" placeholder="Мой пресет">
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="save-preset-btn">Сохранить пресет</button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="param-group">
+                                    <label class="param-label">Загрузить пресет:</label>
+                                    <select class="form-select" id="preset-select">
+                                        <option value="">Выберите пресет</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="load-preset-btn">Загрузить</button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="delete-preset-btn">Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="calculations" role="tabpanel">
+                <form id="calculations-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="param-group">
+                                <label class="param-label">Комбинация значений (через пробел):</label>
+                                <input type="text" class="form-control" id="combination" placeholder="Например: 0 0 2">
+                                <div class="form-text">Введите номера распределений, которые нужно свернуть</div>
+                            </div>
+                            <div class="param-group">
+                                <label class="param-label">Тип расчета:</label>
+                                <select class="form-select" id="calc-type">
+                                    <option value="x">По интервалу</option>
+                                    <option value="y">По вероятности</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Рассчитать</button>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="x-inputs">
+                                <div class="param-group">
+                                    <label class="param-label">Левая граница интервала:</label>
+                                    <input type="number" class="form-control" id="x-min" step="0.1" value="-5">
+                                </div>
+                                <div class="param-group">
+                                    <label class="param-label">Правая граница интервала:</label>
+                                    <input type="number" class="form-control" id="x-max" step="0.1" value="5">
+                                </div>
+                            </div>
+                            <div id="y-input" style="display: none;">
+                                <div class="param-group">
+                                    <label class="param-label">Значение вероятности:</label>
+                                    <input type="number" class="form-control" id="y-value" step="0.01" min="0" max="1" value="0.5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="result-container" style="display: none;">
+                    <div id="result"></div>
+                    <div id="plot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Инициализация тостов
+const toastElement = document.getElementById('notification-toast');
+const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+
+function showNotification(message, type = 'success') {
+    const toastMessage = document.getElementById('toast-message');
+    toastMessage.textContent = message;
+
+    // Установка цвета в зависимости от типа
+    toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+    if (type === 'success') {
+        toastElement.classList.add('bg-success');
+    } else if (type === 'error') {
+        toastElement.classList.add('bg-danger');
+    } else if (type === 'warning') {
+        toastElement.classList.add('bg-warning');
+    }
+
+    toast.show();
+}
+
+// Функции для работы с пресетами
+const PRESETS_KEY = 'distribution_presets';
+
+function savePreset() {
+    const presetName = document.getElementById('preset-name').value.trim();
+    if (!presetName) {
+        showNotification('Введите имя пресета', 'warning');
+        return;
+    }
+
+    // Собираем данные всех распределений
+    const data = {};
+    for (let i = 0; i < 4; i++) {
+        const type = document.querySelector(`select[name="type-${i}"]`).value;
+        const params = {};
+
+        if (type === 'normal') {
+            params.mean = parseFloat(document.querySelector(`input[name="mean-${i}"]`).value);
+            params.std = parseFloat(document.querySelector(`input[name="std-${i}"]`).value);
+        } else if (type === 'exponential') {
+            params.lambda = parseFloat(document.querySelector(`input[name="lambda-${i}"]`).value);
+        } else if (type === 'uniform') {
+            params.min = parseFloat(document.querySelector(`input[name="min-${i}"]`).value);
+            params.max = parseFloat(document.querySelector(`input[name="max-${i}"]`).value);
+        }
+
+        data[i] = {type, params};
+    }
+
+    // Получаем существующие пресеты
+    let presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+    presets[presetName] = data;
+
+    // Сохраняем обратно
+    localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+
+    // Обновляем выпадающий список
+    updatePresetOptions();
+
+    showNotification(`Пресет "${presetName}" сохранен`);
+}
+
+function loadPreset() {
+    const presetName = document.getElementById('preset-select').value;
+    if (!presetName) {
+        return;
+    }
+
+    const presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+    const data = presets[presetName];
+
+    if (!data) {
+        showNotification('Пресет не найден', 'error');
+        return;
+    }
+
+    // Загружаем данные в форму
+    for (let i = 0; i < 4; i++) {
+        if (!data[i]) continue;
+
+        const type = data[i].type;
+        const params = data[i].params;
+
+        // Устанавливаем тип распределения
+        const typeSelect = document.querySelector(`select[name="type-${i}"]`);
+        typeSelect.value = type;
+
+        // Отображаем соответствующие поля параметров
+        const normalParams = document.querySelector(`.normal-params-${i}`);
+        const exponentialParams = document.querySelector(`.exponential-params-${i}`);
+        const uniformParams = document.querySelector(`.uniform-params-${i}`);
+
+        normalParams.style.display = type === 'normal' ? 'block' : 'none';
+        exponentialParams.style.display = type === 'exponential' ? 'block' : 'none';
+        uniformParams.style.display = type === 'uniform' ? 'block' : 'none';
+
+        // Заполняем значения параметров
+        if (type === 'normal') {
+            document.querySelector(`input[name="mean-${i}"]`).value = params.mean;
+            document.querySelector(`input[name="std-${i}"]`).value = params.std;
+        } else if (type === 'exponential') {
+            document.querySelector(`input[name="lambda-${i}"]`).value = params.lambda;
+        } else if (type === 'uniform') {
+            document.querySelector(`input[name="min-${i}"]`).value = params.min;
+            document.querySelector(`input[name="max-${i}"]`).value = params.max;
+        }
+    }
+
+    showNotification(`Пресет "${presetName}" загружен`);
+}
+
+function deletePreset() {
+    const presetName = document.getElementById('preset-select').value;
+    if (!presetName) {
+        showNotification('Выберите пресет для удаления', 'warning');
+        return;
+    }
+
+    if (!confirm(`Вы уверены, что хотите удалить пресет "${presetName}"?`)) {
+        return;
+    }
+
+    let presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+    if (presets[presetName]) {
+        delete presets[presetName];
+        localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+        updatePresetOptions();
+        showNotification(`Пресет "${presetName}" удален`);
+    } else {
+        showNotification('Пресет не найден', 'error');
+    }
+}
+
+function updatePresetOptions() {
+    const presetSelect = document.getElementById('preset-select');
+    const presets = JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}');
+
+    // Очищаем текущие опции, оставляя только первую (пустую)
+    while (presetSelect.options.length > 1) {
+        presetSelect.remove(1);
+    }
+
+    // Добавляем новые опции
+    for (const presetName in presets) {
+        const option = document.createElement('option');
+        option.value = presetName;
+        option.textContent = presetName;
+        presetSelect.appendChild(option);
+    }
+}
+
+// Загрузка сохраненных параметров
+document.addEventListener('DOMContentLoaded', function() {
+    // Обновляем список пресетов
+    updatePresetOptions();
+
+    // Установка сохраненных типов распределений
+    for (let i = 0; i < 4; i++) {
+        const typeSelect = document.querySelector(`select[name="type-${i}"]`);
+        if (!typeSelect) continue;
+
+        const savedType = typeSelect.value; // Берем текущее значение из HTML
+
+        // Показываем/скрываем соответствующие поля параметров
+        const normalParams = document.querySelector(`.normal-params-${i}`);
+        const exponentialParams = document.querySelector(`.exponential-params-${i}`);
+        const uniformParams = document.querySelector(`.uniform-params-${i}`);
+
+        if (normalParams && exponentialParams && uniformParams) {
+            normalParams.style.display = savedType === 'normal' ? 'block' : 'none';
+            exponentialParams.style.display = savedType === 'exponential' ? 'block' : 'none';
+            uniformParams.style.display = savedType === 'uniform' ? 'block' : 'none';
+        }
+    }
+
+    // Обработка изменения типа распределения
+    document.querySelectorAll('select[name^="type-"]').forEach(select => {
+        select.addEventListener('change', function() {
+            const index = this.name.split('-')[1];
+            const normalParams = document.querySelector(`.normal-params-${index}`);
+            const exponentialParams = document.querySelector(`.exponential-params-${index}`);
+            const uniformParams = document.querySelector(`.uniform-params-${index}`);
+
+            if (this.value === 'normal') {
+                normalParams.style.display = 'block';
+                exponentialParams.style.display = 'none';
+                uniformParams.style.display = 'none';
+            } else if (this.value === 'exponential') {
+                normalParams.style.display = 'none';
+                exponentialParams.style.display = 'block';
+                uniformParams.style.display = 'none';
+            } else if (this.value === 'uniform') {
+                normalParams.style.display = 'none';
+                exponentialParams.style.display = 'none';
+                uniformParams.style.display = 'block';
+            }
+        });
+    });
+
+    // Обработка формы параметров
+    document.getElementById('parameters-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const data = {};
+        for (let i = 0; i < 4; i++) {
+            const type = document.querySelector(`select[name="type-${i}"]`).value;
+            const params = {};
+
+            if (type === 'normal') {
+                const mean = parseFloat(document.querySelector(`input[name="mean-${i}"]`).value);
+                const std = parseFloat(document.querySelector(`input[name="std-${i}"]`).value);
+
+                if (isNaN(mean) || isNaN(std) || std <= 0) {
+                    showNotification(`Некорректные параметры для распределения ${i}`, 'error');
+                    return;
+                }
+
+                params.mean = mean;
+                params.std = std;
+            } else if (type === 'exponential') {
+                const lambda = parseFloat(document.querySelector(`input[name="lambda-${i}"]`).value);
+
+                if (isNaN(lambda) || lambda <= 0) {
+                    showNotification(`Некорректные параметры для распределения ${i}`, 'error');
+                    return;
+                }
+
+                params.lambda = lambda;
+            } else if (type === 'uniform') {
+                const min = parseFloat(document.querySelector(`input[name="min-${i}"]`).value);
+                const max = parseFloat(document.querySelector(`input[name="max-${i}"]`).value);
+
+                if (isNaN(min) || isNaN(max) || min >= max) {
+                    showNotification(`Некорректные параметры для распределения ${i}`, 'error');
+                    return;
+                }
+
+                params.min = min;
+                params.max = max;
+            }
+
+            data[i] = {type, params};
+        }
+
+        try {
+            const response = await fetch('/save_parameters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showNotification('Параметры сохранены');
+            } else {
+                const errorData = await response.json();
+                showNotification(errorData.message || 'Ошибка при сохранении параметров', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Ошибка при отправке данных', 'error');
+        }
+    });
+
+    // Обработка клика по кнопкам пресетов
+    document.getElementById('save-preset-btn').addEventListener('click', savePreset);
+    document.getElementById('load-preset-btn').addEventListener('click', loadPreset);
+    document.getElementById('delete-preset-btn').addEventListener('click', deletePreset);
+
+    // Обработка изменения типа расчета
+    document.getElementById('calc-type').addEventListener('change', function() {
+        const xInputs = document.getElementById('x-inputs');
+        const yInput = document.getElementById('y-input');
+        const resultContainer = document.querySelector('.result-container');
+
+        // Скрываем предыдущие результаты при смене типа расчета
+        resultContainer.style.display = 'none';
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('plot').innerHTML = '';
+
+        if (this.value === 'x') {
+            xInputs.style.display = 'block';
+            yInput.style.display = 'none';
+        } else {
+            xInputs.style.display = 'none';
+            yInput.style.display = 'block';
+        }
+    });
+
+    // Валидация ввода комбинации
+    document.getElementById('combination').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-3\s]/g, '');
+    });
+
+    // Обработка формы расчетов
+    document.getElementById('calculations-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const combinationInput = document.getElementById('combination').value.trim();
+        if (!combinationInput) {
+            showNotification('Введите комбинацию распределений', 'warning');
+            return;
+        }
+
+        const combination = combinationInput.split(/\s+/).map(Number);
+
+        if (combination.length === 0) {
+            showNotification('Введите корректную комбинацию распределений', 'warning');
+            return;
+        }
+
+        // Проверяем, что все числа в комбинации от 0 до 3
+        if (combination.some(num => num < 0 || num > 3 || isNaN(num))) {
+            showNotification('Комбинация должна содержать только числа от 0 до 3', 'warning');
+            return;
+        }
+
+        const calcType = document.getElementById('calc-type').value;
+        const data = {
+            combination,
+            calc_type: calcType
+        };
+
+        if (calcType === 'x') {
+            const xMin = parseFloat(document.getElementById('x-min').value);
+            const xMax = parseFloat(document.getElementById('x-max').value);
+
+            if (isNaN(xMin) || isNaN(xMax)) {
+                showNotification('Введите корректные границы интервала', 'warning');
+                return;
+            }
+
+            if (xMin >= xMax) {
+                showNotification('Левая граница должна быть меньше правой', 'warning');
+                return;
+            }
+
+            data.x_min = xMin;
+            data.x_max = xMax;
+        } else {
+            const yValue = parseFloat(document.getElementById('y-value').value);
+
+            if (isNaN(yValue) || yValue < 0 || yValue > 1) {
+                showNotification('Значение вероятности должно быть от 0 до 1', 'warning');
+                return;
+            }
+
+            data.y = yValue;
+        }
+
+        try {
+            // Показываем индикатор загрузки
+            const resultContainer = document.querySelector('.result-container');
+            resultContainer.style.display = 'block';
+            document.getElementById('result').innerHTML = `
+                <div class="d-flex justify-content-center my-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <p class="text-center">Выполняем расчет...</p>
+            `;
+            document.getElementById('plot').innerHTML = '';
+
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'error') {
+                showNotification(result.message || 'Произошла ошибка при расчетах', 'error');
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger">
+                        ${result.message || 'Произошла ошибка при расчетах'}
+                    </div>
+                `;
+                return;
+            }
+
+            // Показываем контейнер с результатами
+            if (calcType === 'x') {
+                // Очищаем предыдущий результат
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-info">
+                        Вероятность попадания в диапазон [${data.x_min}, ${data.x_max}]: ${result.probability.toFixed(4)}
+                    </div>
+                `;
+                // Отображаем график
+                const plotData = JSON.parse(result.plot);
+                Plotly.newPlot('plot', plotData.data, plotData.layout);
+            } else {
+                // Очищаем предыдущий результат
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-info">
+                        Для вероятности ${data.y} значение X ≤ ${result.x_min.toFixed(4)}
+                    </div>
+                `;
+                // Отображаем график
+                const plotData = JSON.parse(result.plot);
+                Plotly.newPlot('plot', plotData.data, plotData.layout);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Ошибка при выполнении расчетов', 'error');
+            document.getElementById('result').innerHTML = `
+                <div class="alert alert-danger">
+                    Ошибка при выполнении расчетов: ${error.message}
+                </div>
+            `;
+        }
+    });
+});
+</script>
+</body>
+</html>
