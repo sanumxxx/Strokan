@@ -328,7 +328,7 @@ def find_x_for_probability(result_full, x_full, target_prob):
 
 if __name__ == "__main__":
     # Если приложение запускается как основной скрипт (не через webview)
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
 
 # Для запуска в режиме desktop-приложения
 # def start_server():
